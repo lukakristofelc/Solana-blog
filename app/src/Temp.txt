@@ -1,0 +1,106 @@
+import './App.css';
+import { useState } from 'react';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
+import idl from './idl.json';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+require('@solana/wallet-adapter-react-ui/styles.css');
+
+const wallets = [
+    new PhantomWalletAdapter()
+  ]
+  
+  const { SystemProgram, Keypair } = web3;
+  const programID = new PublicKey(idl.metadata.address);
+  
+  let loaded = false;
+  
+
+
+const wallet = useWallet();
+  let [value, setValue] = useState('');
+  const [novaVsebina, setVsebina] = useState('');
+
+  async function ustvariObjavo(event) {
+    console.log(event);
+    const provider = await getProvider()
+    const program = new Program(idl, programID, provider);
+    const objava = Keypair.generate();
+
+    try {
+      await program.methods.objaviObjavo(novaVsebina)
+      .accounts({
+          objava: objava.publicKey,
+          avtor: provider.wallet.publicKey,
+          systemProgram: SystemProgram.programId})
+      .signers([objava])
+      .rpc();
+
+      const account = await program.account.objava.fetch(objava.publicKey);
+      console.log('account: ', account);
+      //loaded = false;
+      return account;
+    } catch (err) {
+      console.log("Transaction error: ", err);
+    }
+  }
+
+  async function fetchPosts() {
+    const provider = await getProvider()
+    const program = new Program(idl, programID, provider);
+    let objaveObjave = [];
+    const objave = await program.account.objava.all();
+    objave.map(objava => objaveObjave.push(new Objava(objava.publicKey, objava.account)));
+    objaveObjave = objaveObjave.slice().sort((a, b) => b.timestamp - a.timestamp);
+    setValue(objaveObjave);
+  }
+  
+  async function getProvider() {
+    const network = "http://127.0.0.1:8899";
+    const connection = new Connection(network, "processed");
+  
+    const provider = new AnchorProvider(connection, wallet, "processed");
+    return provider;
+  }
+
+  function MyForm() {
+    return (
+      <form onSubmit={ustvariObjavo}>
+        <label>Vnesite objavo:
+          <input 
+            type="text" 
+            value={novaVsebina}
+            onChange={(e) => setVsebina(e.target.value)}
+          />
+        </label>
+        <button type="button">Send</button>
+      </form>
+    )
+  }
+
+  fetchPosts();
+
+  //console.log(value);
+
+  class Objava
+{
+    constructor (publicKey, accountData) {
+        this.publicKey = publicKey
+        this.avtor = accountData.avtor
+        this.timestamp = accountData.timestamp.toString()
+        this.vsebina = accountData.vsebina
+    }
+}
+const AppWithProvider = () => (
+  <ConnectionProvider endpoint="http://127.0.0.1:8899">
+    <WalletProvider wallets={wallets} autoConnect>
+      <WalletModalProvider>
+        <App />
+      </WalletModalProvider>
+    </WalletProvider>
+  </ConnectionProvider>
+)
+
+export default AppWithProvider;
