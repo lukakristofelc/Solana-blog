@@ -1,6 +1,6 @@
 /* app/src/App.js */
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import idl from './idl.json';
@@ -46,7 +46,6 @@ function App() {
     if (!input) return
     const provider = await getProvider();
     const program = new Program(idl, programID, provider);
-    
     const newObjava = Keypair.generate();
 
     await program.methods.objaviObjavo(input)
@@ -63,6 +62,10 @@ function App() {
     setInput('');
   }
 
+  useEffect(()=>{
+    initialize();
+  }, [])
+
   if (!wallet.connected) 
   {
     return (
@@ -77,7 +80,6 @@ function App() {
   } 
   else 
   {
-    initialize();
     return (
       <div className="App">
         <div>
