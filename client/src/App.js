@@ -3,7 +3,7 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
-import idl from './idl.json';
+import idl from './solana_blog.json';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
@@ -70,7 +70,7 @@ function App() {
   {
     return (
       <div>
-        <h1 style={{textAlign: 'center'}}>SOLANA BLOG</h1>
+        <h1 style={{textAlign: 'center'}}>SOLANA BLOGCHAIN</h1>
         <p style={{textAlign: 'center'}}>Please connect your solana wallet to continue:</p>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop:'20px' }}>
           <WalletMultiButton />
@@ -86,7 +86,7 @@ function App() {
           {
             (
               <div className='nova-objava'>
-                <h1>SOLANA BLOG</h1>
+                <h1>SOLANA BLOGCHAIN</h1>
                 <textarea 
                   type="text"
                   placeholder="Vnesi novo objavo"
