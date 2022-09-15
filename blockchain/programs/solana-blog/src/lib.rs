@@ -6,7 +6,7 @@ declare_id!("35AsEX1LkmsL96t7X91JYiw7cv7TtgEqybMvFwv5qpfn");
 pub mod solana_blog {
     use super::*;
 
-    pub fn objavi_objavo(ctx: Context<ObjaviObjavo>, vsebina: String) 
+    pub fn dodaj_objavo(ctx: Context<DodajObjavo>, vsebina: String) 
     -> Result<()> {
         let objava: &mut Account<Objava> = &mut ctx.accounts.objava;
         let avtor: &Signer = &ctx.accounts.avtor;
@@ -19,7 +19,7 @@ pub mod solana_blog {
 }
 
 #[derive(Accounts)]
-pub struct ObjaviObjavo<'info> {
+pub struct DodajObjavo<'info> {
     #[account(init, payer = avtor, space = 2000)]
     pub objava: Account<'info, Objava>,
     #[account(mut)]

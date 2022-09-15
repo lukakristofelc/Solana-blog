@@ -5,7 +5,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import idl from './solana_blog.json';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { useWallet, WalletProvider } from '@solana/wallet-adapter-react';
+import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Objava } from './Components/ObjavaComponent/ObjavaComponent'
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -45,7 +45,7 @@ function App() {
     const contract = await connectContract();
     const novaObjava = Keypair.generate();
 
-    await contract.methods.objaviObjavo(input)
+    await contract.methods.dodajObjavo(input)
       .accounts({
         objava: novaObjava.publicKey,
         avtor: contract.provider.wallet.publicKey,
@@ -108,7 +108,7 @@ function App() {
 }
 
 const AppWithWalletProvider = () => (
-  <ConnectionProvider>
+  <ConnectionProvider endpoint={"http://127.0.0.1:8899"}>
     <WalletProvider wallets={wallets}>
       <WalletModalProvider>
         <App/>

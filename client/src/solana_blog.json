@@ -3,7 +3,7 @@
   "name": "solana_blog",
   "instructions": [
     {
-      "name": "objaviObjavo",
+      "name": "dodajObjavo",
       "accounts": [
         {
           "name": "objava",
