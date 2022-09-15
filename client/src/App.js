@@ -108,13 +108,13 @@ function App() {
 }
 
 const AppWithWalletProvider = () => (
+  <ConnectionProvider>
     <WalletProvider wallets={wallets}>
       <WalletModalProvider>
         <App/>
       </WalletModalProvider>
     </WalletProvider>
+  </ConnectionProvider>
 )
-
-
 
 export default AppWithWalletProvider;  
