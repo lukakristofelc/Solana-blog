@@ -5,7 +5,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import idl from './solana_blog.json';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
+import { useWallet, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Objava } from './Components/ObjavaComponent/ObjavaComponent'
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -19,51 +19,47 @@ function App() {
   const [input, setInput] = useState('');
   const wallet = useWallet()
 
-  async function getProvider() {
+  async function connectContract() {
     const network = "http://127.0.0.1:8899";
+
     const connection = new Connection(network, "processed");
-
     const provider = new AnchorProvider(connection, wallet, "processed");
-    return provider;
+    const contract = new Program(idl, programID, provider);
+    
+    return contract;
   }
 
-  async function initialize() {    
-    const provider = await getProvider();
-    const program = new Program(idl, programID, provider);
-    try {      
-      const accounts = await program.account.objava.all();
-      setDataList(orderPosts(accounts));
-    } catch (err) {
-      console.log("Transaction error: ", err);
-    }
+  async function getPosts() { 
+    const contract = await connectContract();
+    const objave = await contract.account.objava.all();
+    setDataList(orderPosts(objave));
   }
 
-  const orderPosts = (accounts) => {
-    return accounts.slice().sort((a, b) => b.account.timestamp - a.account.timestamp)
+  const orderPosts = (posts) => {
+    return posts.slice().sort((a, b) => b.account.timestamp - a.account.timestamp)
   }
 
-  async function update() {
-    if (!input) return
-    const provider = await getProvider();
-    const program = new Program(idl, programID, provider);
-    const newObjava = Keypair.generate();
+  async function updatePosts() {
+    if (!input) return;
 
-    await program.methods.objaviObjavo(input)
+    const contract = await connectContract();
+    const novaObjava = Keypair.generate();
+
+    await contract.methods.objaviObjavo(input)
       .accounts({
-        objava: newObjava.publicKey,
-        avtor: provider.wallet.publicKey,
+        objava: novaObjava.publicKey,
+        avtor: contract.provider.wallet.publicKey,
         systemProgram: SystemProgram.programId
       })
-      .signers([newObjava])
+      .signers([novaObjava])
       .rpc();
 
-    const accounts = await program.account.objava.all();
-    setDataList(orderPosts(accounts));
     setInput('');
+    getPosts();
   }
 
   useEffect(()=>{
-    initialize();
+    getPosts();
   }, [])
 
   if (!wallet.connected) 
@@ -71,7 +67,7 @@ function App() {
     return (
       <div>
         <h1 style={{textAlign: 'center'}}>SOLANA BLOGCHAIN</h1>
-        <p style={{textAlign: 'center'}}>Please connect your solana wallet to continue:</p>
+        <p style={{textAlign: 'center'}}>Please connect your Phantom Wallet to continue:</p>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop:'20px' }}>
           <WalletMultiButton />
         </div>
@@ -95,7 +91,7 @@ function App() {
                   rows="8" cols="50"
                 />
                 <br/>
-                <button onClick={update}>OBJAVI</button>
+                <button onClick={updatePosts}>OBJAVI</button>
               </div>
             )
           }
@@ -111,14 +107,14 @@ function App() {
   }
 }
 
-const AppWithProvider = () => (
-  <ConnectionProvider endpoint="http://127.0.0.1:8899">
-    <WalletProvider wallets={wallets} autoConnect>
+const AppWithWalletProvider = () => (
+    <WalletProvider wallets={wallets}>
       <WalletModalProvider>
-        <App />
+        <App/>
       </WalletModalProvider>
     </WalletProvider>
-  </ConnectionProvider>
 )
 
-export default AppWithProvider;  
+
+
+export default AppWithWalletProvider;  
