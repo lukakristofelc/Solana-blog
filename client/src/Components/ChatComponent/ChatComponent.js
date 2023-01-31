@@ -17,6 +17,9 @@ export default function ChatComponent(props) {
     const [chatAccount, setChatAccount] = useState([]);
     const [input, setInput] = useState('');
 
+    const [currentUsername, setCurrentUsername] = useState('');
+    const [chatterUsername, setChatterUsername] = useState('');
+
     const sendMessage = async () => {
         if(input == "") {
             alert("Cannot send empty message");
@@ -43,7 +46,6 @@ export default function ChatComponent(props) {
                     systemProgram: SystemProgram.programId
                 })
                 .rpc();
-
             getChatAccount();
             setInput('');
         } catch (error) {
@@ -94,6 +96,14 @@ export default function ChatComponent(props) {
             )
 
             let chat = await contract.provider.connection.getAccountInfo(chatAddress);
+
+            const currentUsername = await contract.account.user.fetch(currentUser);
+            const chatterUsername = await contract.account.user.fetch(currentChatAddress);
+
+            console.log(currentUsername)
+
+            setCurrentUsername(currentUsername.name);
+            setChatterUsername(chatterUsername.name);
             
             if (chat === null)
             {
@@ -115,6 +125,17 @@ export default function ChatComponent(props) {
         }
     }
 
+    const getUsername = (from) => {
+        if (JSON.stringify(currentUser) === JSON.stringify(from))
+        {
+            return currentUsername;
+        }
+        else
+        {
+            return chatterUsername;
+        }
+    }
+
     useEffect(() => {
         getChatAccount();
     }, []);
@@ -131,7 +152,7 @@ export default function ChatComponent(props) {
             </div>
             <div className="message-composer">
                 <div className="messages">
-                    {chat.map(message => <p key={message['timestamp']}><span id='sender_name'>{message['from']+": "}</span><br/>{message['content']}</p>)}
+                    {chat.map(message => <p key={message['timestamp']}><span id='sender_name'>{getUsername(message['from'])+": "}</span><br/>{message['content']}</p>)}
                 </div>  
                 <textarea 
                         type="text"
