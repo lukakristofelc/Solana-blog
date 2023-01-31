@@ -19,7 +19,6 @@ function App() {
   const [selectedWallet, setSelectedWallet] = useState(undefined); 
   const [isConnected, setConnected] = useState(false);
   const [contract, setContract] = useState([]);
-  const [posts, setPosts] = useState([]);
 
   const connectWallet = async () => {
     if (window.solana) {
@@ -109,23 +108,6 @@ function App() {
     return userExists;
   }
 
-  const getPosts = async () => {
-    try {
-        const fetchedPosts = await contract.account.post.all();
-        setPosts(orderPosts(fetchedPosts));
-    } catch (e) {
-        console.log(e);
-    }
-  }
-
-  const orderPosts = (accounts) => {
-    return accounts.slice().sort((a, b) => b['account']['timestamp'] - a['account']['timestamp']);
-  }
-
-  useEffect(() => {
-    getPosts();
-  }, [contract]);
-
   if (currentUser === '')
   {
     return (<div>
@@ -157,7 +139,7 @@ function App() {
   {
     return (
       <div>
-        <SwitcherComponent key={posts} currentUser={currentUser} isMod={isMod} contract={contract} Keypair={Keypair} posts={posts} getPosts={getPosts} username={username}/>
+        <SwitcherComponent key={currentUser} currentUser={currentUser} isMod={isMod} contract={contract} Keypair={Keypair} username={username}/>
       </div>
     )
   }

@@ -13,8 +13,6 @@ export default function SwitcherComponent(props) {
     let isMod = props.isMod;
     let contract = props.contract;
     let Keypair = props.Keypair;
-    let posts = props.posts;
-    let getPosts = props.getPosts;
     let username = props.username;
 
     const [view, setView] = useState('F');
@@ -92,10 +90,10 @@ export default function SwitcherComponent(props) {
                     <button onClick={setMyProfileView}>MY PROFILE {numOfFriendRequests > 0 ? <span> | {numOfFriendRequests}</span> : <span/>} </button>
                 </div>
             </div>
-            {   view === 'F' ? <FeedComponent currentUser={currentUser} contract={contract} setMessageView={setMessageView} setProfileView={setProfileView} isMod={isMod} Keypair={Keypair} posts={posts} getPosts={getPosts}/> :
+            {   view === 'F' ? <FeedComponent currentUser={currentUser} contract={contract} setMessageView={setMessageView} setProfileView={setProfileView} isMod={isMod} Keypair={Keypair}/> :
                 view === 'M' ? <ChatListComponent setProfileView={setProfileView} currentUser={currentUser} contract={contract}/> :
-                view === 'P' ? <MyProfileComponent  currentUser={currentUser} contract={contract} setProfileView={setProfileView} posts={posts} isMod={isMod} getPosts={getPosts} username={username}/> :
-                view === 'FP' ? <ForeignProfileComponent key={profileData.foreignAddress} setProfileView={setProfileView} foreignAddress={profileData.foreignAddress} username={profileData.username} currentUser={currentUser} contract={contract} posts={posts} isMod={isMod}  /> : <div/>
+                view === 'P' ? <MyProfileComponent  currentUser={currentUser} contract={contract} setProfileView={setProfileView} isMod={isMod} username={username}/> :
+                view === 'FP' ? <ForeignProfileComponent key={profileData.foreignAddress} setProfileView={setProfileView} foreignAddress={profileData.foreignAddress} username={profileData.username} currentUser={currentUser} contract={contract} isMod={isMod}  /> : <div/>
             }
         </div>
     )

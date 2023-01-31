@@ -9,14 +9,13 @@ export default function MyProfileComponent(props) {
 
     let currentUser = props.currentUser;
     let contract = props.contract;
-    let posts = props.posts;
     let setProfileView = props.setProfileView;
     let isMod = props.isMod;
-    let getPosts = props.getPosts;
     let username = props.username;
 
     const [friendRequests, setFriendRequests] = useState([]);
     const [friends, setFriends] = useState([]);
+    const [posts, setPosts] = useState([]);
 
     const getFriendsData = async () => {
         try {
@@ -56,15 +55,32 @@ export default function MyProfileComponent(props) {
         }
     }
 
-    const filterPosts = () => {
-        posts = posts.filter(post => JSON.stringify(post['account']['author']) === JSON.stringify(currentUser));
+    const getPosts = async () => {
+        try {
+            const fetchedPosts = await contract.account.post.all();
+            setPosts(filterPosts(orderPosts(fetchedPosts)));
+        } catch (e) {
+            console.log(e);
+        }
     }
 
-    filterPosts();
+    const orderPosts = (posts) => {
+        return posts.slice().sort((a, b) => b['account']['timestamp'] - a['account']['timestamp']);
+    }
+
+    const filterPosts = (posts) => {
+        return posts.filter(post => JSON.stringify(post['account']['author']) === JSON.stringify(currentUser));
+    }
 
     useEffect(() => {
         getFriendsData();
     }, [friendRequests, friends]);
+
+    useEffect(() => {
+        getPosts();
+    }, [])
+
+    console.log(posts);
 
     return (
         <div className='profile'>
@@ -81,7 +97,7 @@ export default function MyProfileComponent(props) {
                                             contract={contract} 
                                             name={friendRequest['name']} 
                                             address={friendRequest['address']}
-                                            setProfileView={props.setProfileView}
+                                            setProfileView={setProfileView}
                                             currentUser={currentUser}
                                             foreignProfile={false}
                             />) : <p id='no-friends'>You don't have any friend requests at this moment.</p>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './FeedComponent.css';
 import PostComponent from '../PostComponent/PostComponent';
 
@@ -8,12 +8,11 @@ export default function FeedComponent(props) {
     let contract = props.contract;
     let isMod = props.isMod;
     let Keypair = props.Keypair;
-    let posts = props.posts;
-    let getPosts = props.getPosts;
 
     const [username, setUsername] = useState('');
     const [foreignAddress, setForeignAddress] = useState('');
     const [input, setInput] = useState('');
+    const [posts, setPosts] = useState([]);
 
     const addPost = async () => {
         if (!input) return;
@@ -37,7 +36,23 @@ export default function FeedComponent(props) {
         await getPosts();
     }
 
-    console.log(posts);
+    const getPosts = async () => {
+      try {
+          const fetchedPosts = await contract.account.post.all();
+          setPosts(orderPosts(fetchedPosts));
+      } catch (e) {
+          console.log(e);
+      }
+    }
+
+    const orderPosts = (posts) => {
+        return posts.slice().sort((a, b) => b['account']['timestamp'] - a['account']['timestamp']);
+    }
+
+    useEffect(() => {
+      getPosts();
+    }, [])
+
     return( 
         <div>
             <textarea 

@@ -15,14 +15,13 @@ export default function ForeignProfileComponent(props) {
     let foreignAddress = props.foreignAddress;
     let contract = props.contract;
     let isMod = props.isMod;
-    let posts = props.posts;
-    let getPosts = props.getPosts;
 
     const [messageContent, setMessageContent] = useState('');
     const [isFriend, setIsFriend] = useState(false);
     const [friends, setFriends] = useState([]);
     const [requestSent, setRequestSent] = useState(false);
     const [requestSentCurrentUser, setRequestSentCurrentUser] = useState(false);
+    const [posts, setPosts] = useState([]);
 
     const removeFriend = async () => {
         try {    
@@ -82,7 +81,6 @@ export default function ForeignProfileComponent(props) {
             console.log(e);
         }
     }
-    
     
     const getFriendsInfo = async () => {
         try {
@@ -149,16 +147,31 @@ export default function ForeignProfileComponent(props) {
         }
     }*/
 
-    const filterPosts = () => {
-        posts = posts.filter(post => JSON.stringify(post['account']['author']) === JSON.stringify(foreignAddress));
+    const getPosts = async () => {
+        try {
+            const fetchedPosts = await contract.account.post.all();
+            setPosts(filterPosts(orderPosts(fetchedPosts)));
+        } catch (e) {
+            console.log(e);
+        }
     }
-    filterPosts();
+
+    const orderPosts = (posts) => {
+        return posts.slice().sort((a, b) => b['account']['timestamp'] - a['account']['timestamp']);
+    }
+
+    const filterPosts = (posts) => {
+        return posts.filter(post => JSON.stringify(post['account']['author']) === JSON.stringify(foreignAddress));
+    }
 
     useEffect(() => {
         getFriendsInfo();
     })
 
-    console.log(friends);
+    useEffect(() => {
+        getPosts();
+    }, [])
+
     return (
         <div className='profile'>
             <div className='profile-info'>
