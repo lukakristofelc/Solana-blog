@@ -37,7 +37,8 @@ export default function FeedComponent(props) {
         await getPosts();
     }
 
-    return(  
+    console.log(posts);
+    return( 
         <div>
             <textarea 
                 type="text"
@@ -50,7 +51,7 @@ export default function FeedComponent(props) {
             <button onClick={addPost}>POST</button> <br/>
             {
             posts.map(objava =>
-                <PostComponent    key={objava['publicKey']}
+                <PostComponent      key={objava['publicKey']}
                                     author={objava['account']['username']}
                                     authorKey={objava['account']['author']}
                                     pubkey={objava['publicKey']}
@@ -63,6 +64,7 @@ export default function FeedComponent(props) {
                                     contract={contract}
                                     currentUser={currentUser}
                                     isProfile={false}
+                                    getPosts={getPosts}
                 />)
             }
         </div>)

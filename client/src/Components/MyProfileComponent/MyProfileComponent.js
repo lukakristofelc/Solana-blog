@@ -11,9 +11,11 @@ export default function MyProfileComponent(props) {
     let contract = props.contract;
     let posts = props.posts;
     let setProfileView = props.setProfileView;
+    let isMod = props.isMod;
+    let getPosts = props.getPosts;
+    let username = props.username;
 
-    const [username, setUsername] = useState('');
-    const [friendRequests, setrFriendRequests] = useState([]);
+    const [friendRequests, setFriendRequests] = useState([]);
     const [friends, setFriends] = useState([]);
 
     const getFriendsData = async () => {
@@ -47,7 +49,7 @@ export default function MyProfileComponent(props) {
                 });
             }
 
-            setrFriendRequests(requests);
+            setFriendRequests(requests);
             setFriends(friends);
         } catch (e) {
             console.log(e);
@@ -62,13 +64,14 @@ export default function MyProfileComponent(props) {
 
     useEffect(() => {
         getFriendsData();
-    }, []);
+    }, [friendRequests, friends]);
 
     return (
         <div className='profile'>
             <div className='profile-info'>
                 <div className='user-info'>
-                    <h2>{JSON.stringify(currentUser)}</h2>
+                    <h2>{username}</h2>
+                    <h2>{JSON.stringify(currentUser).substring(1, JSON.stringify(currentUser).length-1)}</h2>
                 </div>
                 <div className='friend-requests'>
                     <h2>FRIEND REQUESTS</h2>
@@ -78,7 +81,7 @@ export default function MyProfileComponent(props) {
                                             contract={contract} 
                                             name={friendRequest['name']} 
                                             address={friendRequest['address']}
-                                            setForeignProfileView={props.setProfileView}
+                                            setProfileView={props.setProfileView}
                                             currentUser={currentUser}
                                             foreignProfile={false}
                             />) : <p id='no-friends'>You don't have any friend requests at this moment.</p>
@@ -108,9 +111,11 @@ export default function MyProfileComponent(props) {
                                             pubkey={objava['publicKey']}
                                             content={objava['account']['content'] } 
                                             timestamp={new Date(objava['account']['timestamp'] * 1000).toLocaleString()}
+                                            isMod={isMod}
                                             contract={contract}
                                             currentUser={currentUser}
                                             isProfile={true}
+                                            getPosts={getPosts}
                         />)
                     }
                 </div>

@@ -159,12 +159,22 @@
       "name": "removeFriend",
       "accounts": [
         {
-          "name": "friends",
+          "name": "friends1",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "formerFriend",
+          "name": "friends2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "formerFriend1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "formerFriend2",
           "isMut": true,
           "isSigner": false
         },

@@ -66,15 +66,15 @@ pub mod solana_blog {
         Ok(())
     }
 
-    // NEEDS WORK
     pub fn remove_friend(ctx: Context<RemoveFriend>) 
     -> Result<()> {
-        let friends: &mut Account<Friends> = &mut ctx.accounts.friends;
-        let former_friend: &mut Account<User> = &mut ctx.accounts.former_friend;
+        let friends1: &mut Account<Friends> = &mut ctx.accounts.friends1;
+        let former_friend1: &mut Account<User> = &mut ctx.accounts.former_friend1;
+        let friends2: &mut Account<Friends> = &mut ctx.accounts.friends2;
+        let former_friend2: &mut Account<User> = &mut ctx.accounts.former_friend2;
 
-        let index = friends.friends.iter().position(|x| *x == former_friend.key()).unwrap();
-        friends.friends.remove(index);
-
+        friends1.friends.retain(|value| *value != former_friend2.key());
+        friends2.friends.retain(|value| *value != former_friend1.key());
         Ok(())
     }
 
@@ -117,7 +117,7 @@ pub struct AddPost<'info> {
 
 #[derive(Accounts)]
 pub struct DeletePost<'info> {
-    #[account(mut, has_one = author, close = author)]
+    #[account(mut, close = author)]
     pub post: Account<'info, Post>,
     pub author: Signer<'info>,
 }
@@ -162,9 +162,13 @@ pub struct HandleFriendRequest<'info> {
 #[derive(Accounts)]
 pub struct RemoveFriend<'info> {
     #[account(mut)]
-    pub friends: Account<'info, Friends>,
+    pub friends1: Account<'info, Friends>,
     #[account(mut)]
-    pub former_friend: Account<'info, User>,
+    pub friends2: Account<'info, Friends>,
+    #[account(mut)]
+    pub former_friend1: Account<'info, User>,
+    #[account(mut)]
+    pub former_friend2: Account<'info, User>,
     #[account(mut)]
     pub author: Signer<'info>,
     pub system_program: Program<'info, System>,

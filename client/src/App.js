@@ -14,6 +14,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState('');
   const [isMod, setIsMod] = useState();
   const [showTextarea, setShowTextArea] = useState();
+  const [newUsername, setNewUsername] = useState('');
   const [username, setUsername] = useState('');
   const [selectedWallet, setSelectedWallet] = useState(undefined); 
   const [isConnected, setConnected] = useState(false);
@@ -62,7 +63,7 @@ function App() {
   }
 
   async function createUser() {
-    if(!username) return;
+    if(!newUsername) return;
 
     const newUser = Keypair.generate();
 
@@ -72,9 +73,11 @@ function App() {
           newUser.publicKey.toBuffer(),
       ],
       contract.programId
-  )
+    )
 
-    await contract.methods.createUser(username, contract.provider.wallet.publicKey, true)
+    const isMod = JSON.stringify(ModeratorAddress) === JSON.stringify(contract.provider.wallet.publicKey);
+
+    await contract.methods.createUser(newUsername, contract.provider.wallet.publicKey, isMod)
       .accounts({
         user: newUser.publicKey,
         friends: newUsersFriendRequests,
@@ -84,9 +87,10 @@ function App() {
       .signers([newUser])
       .rpc();
 
-    setIsMod(contract.provider.wallet.publicKey === ModeratorAddress.toLowerCase());
+    setIsMod(isMod);
     setCurrentUser(newUser.publicKey);
-    setUsername('');
+    setUsername(newUsername);
+    setNewUsername('');
     setShowTextArea(false);
   }
 
@@ -94,11 +98,12 @@ function App() {
     let userExists = false;
     const accounts = await contract.account.user.all();
 
-    accounts.forEach(element => {
-      if(JSON.stringify(element.account.creator) === JSON.stringify(selectedWallet.publicKey)) {
+    accounts.forEach(user => {
+      if(JSON.stringify(user.account.creator) === JSON.stringify(selectedWallet.publicKey)) {
         userExists = true;
-        setCurrentUser(element.publicKey);
-        setIsMod(contract.provider.wallet.publicKey === ModeratorAddress.toLowerCase());
+        setCurrentUser(user.publicKey);
+        setUsername(user.account.name);
+        setIsMod(user.account.isMod);
       }
     });
     return userExists;
@@ -134,7 +139,7 @@ function App() {
                                       id='username' 
                                       type="text"
                                       placeholder="Username"
-                                      onChange={e => setUsername(e.target.value)}
+                                      onChange={e => setNewUsername(e.target.value)}
                                       rows="8" cols="50"
                                     /> 
                                     <button onClick={createUser}>SIGN UP</button> 
@@ -152,7 +157,7 @@ function App() {
   {
     return (
       <div>
-        <SwitcherComponent key={posts} currentUser={currentUser} isMod={isMod} contract={contract} Keypair={Keypair} posts={posts} getPosts={getPosts}/>
+        <SwitcherComponent key={posts} currentUser={currentUser} isMod={isMod} contract={contract} Keypair={Keypair} posts={posts} getPosts={getPosts} username={username}/>
       </div>
     )
   }

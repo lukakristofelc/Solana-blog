@@ -11,14 +11,17 @@ export default function PostComponent(props) {
   let contract = props.contract;
   let currentUser = props.currentUser;
   let isProfile = props.isProfile;
+  let pubkey = props.pubkey;
+  let getPosts = props.getPosts;
 
   const deletePost = async () => {
-    /*await contract.methods.deletePost()
+    await contract.methods.deletePost()
       .accounts({
         post: pubkey,
         author: contract.provider.wallet.publicKey,
       })
-      .rpc();*/
+      .rpc();
+      await getPosts();
   }
 
   const showProfile = () => {
@@ -33,7 +36,7 @@ export default function PostComponent(props) {
       {!isProfile ? <button className='author' onClick={showProfile}>{author}</button> : <div/>}
       <div className='vsebina'>{content}</div>
       <div className='timestamp'>{timestamp}</div>
-      {isMod ? <button onClick={deletePost}>DELETE</button> : authorKey === currentUser ? <button onClick={deletePost}>DELETE</button> : <div/>}
+      {isMod ? <button onClick={deletePost}>DELETE</button> : JSON.stringify(authorKey) === JSON.stringify(currentUser) ? <button onClick={deletePost}>DELETE</button> : <div/>}
     </div>
   </div>
   )
