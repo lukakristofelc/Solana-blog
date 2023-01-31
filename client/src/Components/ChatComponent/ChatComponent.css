@@ -1,0 +1,72 @@
+h2 {
+    font-family: 'Courier New', Courier, monospace;
+    color: darkcyan;
+}
+
+p {
+    text-align: left;
+    margin: 10px;
+    font-size: large;
+}
+
+.message-composer {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    overflow-wrap: break-word;
+    margin-bottom: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    background-color: #212121;
+    overflow: auto; 
+    height: 500px;
+    max-height: 800px;
+}
+
+.messages {
+    display: flex;
+    flex: 1;
+    flex-direction: column-reverse;
+    margin-left: 15px;
+    margin-bottom: 120px;
+    margin-top: 15px;
+    overflow: auto;
+    word-break: break-all;
+}
+
+#sender_name {
+    color: darkcyan;
+}
+
+#message_input {
+    height: 80px;
+    width: 83%;
+    position: absolute;
+    bottom: 0;
+    margin: 20px;
+}
+
+#message_send {
+    height: 80px;
+    width: 13%;
+    position: absolute;
+    right: 0;
+    margin: 20px;
+}
+
+.composer {
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    width: 60%;
+}
+
+.close-button {
+    display:flex;
+    justify-content: right;
+    margin-right: 20px;
+}

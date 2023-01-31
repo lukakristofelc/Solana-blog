@@ -1,120 +1,161 @@
-/* app/src/App.js */
 import './App.css';
 import { useState, useEffect } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider, web3 } from '@project-serum/anchor';
 import idl from './solana_blog.json';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { useWallet, WalletProvider, ConnectionProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { Objava } from './Components/ObjavaComponent/ObjavaComponent'
-require('@solana/wallet-adapter-react-ui/styles.css');
+import SwitcherComponent from './Components/SwitcherComponent/SwitcherComponent';
+import { ModeratorAddress } from './config.js'
+import * as anchor from '@project-serum/anchor';
 
-const wallets = [ new PhantomWalletAdapter() ]
 const { SystemProgram, Keypair } = web3;
 const programID = new PublicKey(idl.metadata.address);
 
 function App() {
-  const [dataList, setDataList] = useState([]);
-  const [input, setInput] = useState('');
-  const wallet = useWallet()
+  const [currentUser, setCurrentUser] = useState('');
+  const [isMod, setIsMod] = useState();
+  const [showTextarea, setShowTextArea] = useState();
+  const [username, setUsername] = useState('');
+  const [selectedWallet, setSelectedWallet] = useState(undefined); 
+  const [isConnected, setConnected] = useState(false);
+  const [contract, setContract] = useState([]);
+  const [posts, setPosts] = useState([]);
+
+  const connectWallet = async () => {
+    if (window.solana) {
+      setSelectedWallet(window.solana);
+    } else {
+      console.log('Phantom not available, get it from here, https://phantom.app/');
+    }
+  }
+
+  useEffect(() => {
+    if (selectedWallet) {
+      selectedWallet.connect();
+      
+      selectedWallet.on('connect', () => {
+          setConnected(true);
+          connectContract();
+          console.log('Connected to wallet ' + selectedWallet.publicKey.toBase58());
+          console.log('selected wallet', selectedWallet);
+      });
+
+      selectedWallet.on('disconnect', () => {
+          setConnected(false);
+          console.log('Disconnected from wallet');
+      });
+      return () => {
+          selectedWallet.disconnect();
+      };
+    }
+  }, [selectedWallet])
 
   async function connectContract() {
     const network = "http://127.0.0.1:8899";
-
-    const connection = new Connection(network, "processed");
-    const provider = new AnchorProvider(connection, wallet, "processed");
-    const contract = new Program(idl, programID, provider);
     
-    return contract;
+    const connection = new Connection(network, "processed");
+    const provider = new AnchorProvider(connection, selectedWallet, "processed");
+    const contract = new Program(idl, programID, provider);
+
+    const userExists = await doesUserExist(contract);
+    setShowTextArea(!userExists);
+    setContract(contract);
   }
 
-  async function getPosts() { 
-    const contract = await connectContract();
-    const objave = await contract.account.objava.all();
-    setDataList(orderPosts(objave));
-  }
+  async function createUser() {
+    if(!username) return;
 
-  const orderPosts = (posts) => {
-    return posts.slice().sort((a, b) => b.account.timestamp - a.account.timestamp)
-  }
+    const newUser = Keypair.generate();
 
-  async function updatePosts() {
-    if (!input) return;
+    const [newUsersFriendRequests, _] = await PublicKey.findProgramAddress(
+      [
+          anchor.utils.bytes.utf8.encode('friends'),
+          newUser.publicKey.toBuffer(),
+      ],
+      contract.programId
+  )
 
-    const contract = await connectContract();
-    const novaObjava = Keypair.generate();
-
-    await contract.methods.dodajObjavo(input)
+    await contract.methods.createUser(username, contract.provider.wallet.publicKey, true)
       .accounts({
-        objava: novaObjava.publicKey,
-        avtor: contract.provider.wallet.publicKey,
+        user: newUser.publicKey,
+        friends: newUsersFriendRequests,
+        author: contract.provider.wallet.publicKey,
         systemProgram: SystemProgram.programId
       })
-      .signers([novaObjava])
+      .signers([newUser])
       .rpc();
 
-    setInput('');
-    getPosts();
+    setIsMod(contract.provider.wallet.publicKey === ModeratorAddress.toLowerCase());
+    setCurrentUser(newUser.publicKey);
+    setUsername('');
+    setShowTextArea(false);
   }
 
-  useEffect(()=>{
-    getPosts();
-  }, [])
+  const doesUserExist = async (contract) => {
+    let userExists = false;
+    const accounts = await contract.account.user.all();
 
-  if (!wallet.connected) 
+    accounts.forEach(element => {
+      if(JSON.stringify(element.account.creator) === JSON.stringify(selectedWallet.publicKey)) {
+        userExists = true;
+        setCurrentUser(element.publicKey);
+        setIsMod(contract.provider.wallet.publicKey === ModeratorAddress.toLowerCase());
+      }
+    });
+    return userExists;
+  }
+
+  const getPosts = async () => {
+    try {
+        const fetchedPosts = await contract.account.post.all();
+        setPosts(orderPosts(fetchedPosts));
+    } catch (e) {
+        console.log(e);
+    }
+  }
+
+  const orderPosts = (accounts) => {
+    return accounts.slice().sort((a, b) => b['account']['timestamp'] - a['account']['timestamp']);
+  }
+
+  useEffect(() => {
+    getPosts();
+  }, [contract]);
+
+  if (currentUser === '')
+  {
+    return (<div>
+              <div className='header'>
+                <h1>SOLANA BLOGCHAIN</h1>
+              </div>
+              <div>
+                { showTextarea ? <div className='sign-up-panel'>
+                                    <p style={{textAlign: 'center'}}>Please pick a username:</p> <br />
+                                    <textarea
+                                      id='username' 
+                                      type="text"
+                                      placeholder="Username"
+                                      onChange={e => setUsername(e.target.value)}
+                                      rows="8" cols="50"
+                                    /> 
+                                    <button onClick={createUser}>SIGN UP</button> 
+                                  </div> : 
+                                  <div>
+                                    <p style={{textAlign: 'center'}}>Please connect your Phantom Wallet to continue:</p>
+                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop:'20px' }}>
+                                    <button onClick={connectWallet}>CONNECT WALLET</button>
+                                    </div>
+                                  </div>}
+              </div>
+            </div>)
+  }
+  else
   {
     return (
       <div>
-        <h1 style={{textAlign: 'center'}}>SOLANA BLOGCHAIN</h1>
-        <p style={{textAlign: 'center'}}>Please connect your Phantom Wallet to continue:</p>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop:'20px' }}>
-          <WalletMultiButton />
-        </div>
+        <SwitcherComponent key={posts} currentUser={currentUser} isMod={isMod} contract={contract} Keypair={Keypair} posts={posts} getPosts={getPosts}/>
       </div>
     )
-  } 
-  else 
-  {
-    return (
-      <div className="App">
-        <div>
-          {
-            (
-              <div className='nova-objava'>
-                <h1>SOLANA BLOGCHAIN</h1>
-                <textarea 
-                  type="text"
-                  placeholder="Vnesi novo objavo"
-                  onChange={e => setInput(e.target.value)}
-                  value={input}
-                  rows="8" cols="50"
-                />
-                <br/>
-                <button onClick={updatePosts}>OBJAVI</button>
-              </div>
-            )
-          }
-          {
-            dataList.map(objava => 
-            <Objava avtor={objava.account.avtor.toBase58()} 
-                    vsebina={objava.account.vsebina} 
-                    timestamp={new Date(objava.account.timestamp * 1000).toLocaleString()} />)
-          }
-        </div>
-      </div>
-    );
   }
 }
 
-const AppWithWalletProvider = () => (
-  <ConnectionProvider endpoint={"http://127.0.0.1:8899"}>
-    <WalletProvider wallets={wallets}>
-      <WalletModalProvider>
-        <App/>
-      </WalletModalProvider>
-    </WalletProvider>
-  </ConnectionProvider>
-)
-
-export default AppWithWalletProvider;  
+export default App;

@@ -1,0 +1,79 @@
+.profile {
+    display: flex;
+    justify-content: center;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    background: #212121;
+    height: auto;
+    width: auto;
+    padding: 40px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.posts {
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    padding-top: 30px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    background-color: #212121;
+}
+
+.no-posts {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    padding-top: 30px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    background-color: #212121;
+    padding: 40px;
+    position: relative;
+}
+
+.friend-requests {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 40px;
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    background: #212121;
+    height: auto;
+    padding: 40px;
+    width: auto;
+}
+
+#no-friends {
+    text-align:center;
+}
+
+#posts-title {
+    position: absolute;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+}

@@ -1,0 +1,19 @@
+.chat-selection {
+    display: flex;
+    justify-content: center;
+}
+
+.chat-list {
+    display: flex;
+    flex-direction: column;
+    border: 4px;
+    border-style: solid;
+    border-color: darkcyan;
+    background: #212121;
+    width: 20%;
+    height: fit-content;
+    margin-top: 87px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
+}

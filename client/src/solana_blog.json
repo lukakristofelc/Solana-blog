@@ -3,15 +3,20 @@
   "name": "solana_blog",
   "instructions": [
     {
-      "name": "dodajObjavo",
+      "name": "addPost",
       "accounts": [
         {
-          "name": "objava",
+          "name": "post",
           "isMut": true,
           "isSigner": true
         },
         {
-          "name": "avtor",
+          "name": "user",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
           "isMut": true,
           "isSigner": true
         },
@@ -23,7 +28,227 @@
       ],
       "args": [
         {
-          "name": "vsebina",
+          "name": "content",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "deletePost",
+      "accounts": [
+        {
+          "name": "post",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createUser",
+      "accounts": [
+        {
+          "name": "user",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "friends",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "creator",
+          "type": "publicKey"
+        },
+        {
+          "name": "isMod",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "sendFriendRequest",
+      "accounts": [
+        {
+          "name": "friends",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "requester",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "handleFriendRequest",
+      "accounts": [
+        {
+          "name": "friends1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "friends2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "requester",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "potentialFriend",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "accepted",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "removeFriend",
+      "accounts": [
+        {
+          "name": "friends",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "formerFriend",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "createChat",
+      "accounts": [
+        {
+          "name": "chat",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user1",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "user2",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "sendMessage",
+      "accounts": [
+        {
+          "name": "message",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "chat",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "author",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "content",
           "type": "string"
         }
       ]
@@ -31,16 +256,100 @@
   ],
   "accounts": [
     {
-      "name": "Objava",
+      "name": "Post",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "avtor",
+            "name": "username",
+            "type": "string"
+          },
+          {
+            "name": "author",
             "type": "publicKey"
           },
           {
-            "name": "vsebina",
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "User",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "isMod",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Friends",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "requests",
+            "type": {
+              "vec": "publicKey"
+            }
+          },
+          {
+            "name": "friends",
+            "type": {
+              "vec": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Chat",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "chatAddress",
+            "type": "publicKey"
+          },
+          {
+            "name": "messageCount",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Message",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "from",
+            "type": "publicKey"
+          },
+          {
+            "name": "to",
+            "type": "publicKey"
+          },
+          {
+            "name": "content",
             "type": "string"
           },
           {

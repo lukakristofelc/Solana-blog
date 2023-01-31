@@ -1,0 +1,47 @@
+.author {
+  font-size: 15px;
+  word-wrap: break-word;
+  color: black;
+  font-weight: bold;
+  text-align: center;
+}
+
+.vsebina {
+  font-size: 30px;
+  color: white;
+  word-wrap: break-word;
+  padding: 20px;
+  text-align: center;
+}
+
+.timestamp {
+font-size: 15px;
+word-wrap: break-word;
+color: darkcyan;
+font-weight: bold;
+text-align: center;
+}
+
+.objava {
+display: inline-block;
+font-family: 'Courier New', Courier, monospace;
+padding: 10px;
+margin: 50px;
+border: 4px;
+border-style: solid;
+border-radius: 50%;
+border-color: darkcyan;
+font-size: 50px;
+background: black;
+
+width: 500px;
+height: 500px;
+position: relative;
+}
+
+.objava-content {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+}
