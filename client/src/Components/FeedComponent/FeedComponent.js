@@ -17,16 +17,16 @@ export default function FeedComponent(props) {
     const addPost = async () => {
         if (!input) return;
 
-        const novaObjava = Keypair.generate();
+        const newPost = Keypair.generate();
     
         try {
           await contract.methods.addPost(input)
             .accounts({
-              post: novaObjava.publicKey,
+              post: newPost.publicKey,
               user: currentUser,
               author: contract.provider.wallet.publicKey,
             })
-            .signers([novaObjava])
+            .signers([newPost])
             .rpc();
         } catch (e) {
           console.log(e);
@@ -38,8 +38,8 @@ export default function FeedComponent(props) {
 
     const getPosts = async () => {
       try {
-          const fetchedPosts = await contract.account.post.all();
-          setPosts(orderPosts(fetchedPosts));
+          const postList = await contract.account.post.all();
+          setPosts(orderPosts(postList));
       } catch (e) {
           console.log(e);
       }
