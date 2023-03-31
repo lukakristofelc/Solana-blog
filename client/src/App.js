@@ -35,14 +35,12 @@ function App() {
       selectedWallet.on('connect', () => {
           setConnected(true);
           connectContract();
-          console.log('Connected to wallet ' + selectedWallet.publicKey.toBase58());
-          console.log('selected wallet', selectedWallet);
       });
 
       selectedWallet.on('disconnect', () => {
           setConnected(false);
-          console.log('Disconnected from wallet');
       });
+      
       return () => {
           selectedWallet.disconnect();
       };
